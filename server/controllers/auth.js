@@ -1,9 +1,11 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const randomString = require('randomized-string');
+// const transporter = require('../functions/oauth2');
 
 const User = require('../models/user');
 const OTP = require('../models/otp');
+const { sendMail } = require('../functions/oauth2');
 
 exports.register = async (req, res) => {
   try {
@@ -28,6 +30,10 @@ exports.register = async (req, res) => {
     });
 
     user.password = await bcrypt.hash(password, salt);
+
+    // Send email for authentication
+    sendMail(email);
+
     user.save();
     res.send('register succress');
   } catch (err) {

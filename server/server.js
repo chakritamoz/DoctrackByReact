@@ -19,7 +19,7 @@ readdirSync('./routes').map((file) => {
   app.use('/api', require(`./routes/` + file));
 });
 
-const port = process.env.SERVER_PORT;
-app.listen(port, () => {
-  console.log(`server start at port ${port}`);
+const SERVER_PORT = process.env.SERVER_PORT;
+app.listen(SERVER_PORT, () => {
+  console.log(`server start at port ${SERVER_PORT}`);
 });

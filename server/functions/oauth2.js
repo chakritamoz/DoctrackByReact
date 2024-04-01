@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const nodemailer = require('nodemailer');
 const { google } = require('googleapis');
 const OAuth2 = google.auth.OAuth2;
+const { readFileSync } = require('fs');
 
 // init dotenv
 dotenv.config();
@@ -12,6 +13,9 @@ const OAUTH_EMAIL = process.env.OAUTH_EMAIL;
 const OAUTH_CLIENT_ID = process.env.OAUTH_CLIENT_ID;
 const OAUTH_CLIENT_SECRET = process.env.OAUTH_CLIENT_SECRET;
 const OAUTH_REFRESH_TOKEN = process.env.OAUTH_REFRESH_TOKEN;
+
+let confrimTemplate = readFileSync('./emails/confirm.html', "utf8");
+let confrimStyle = readFileSync('./emails/confirm.css', 'utf8');
 
 const oauth2Client = new OAuth2(
   OAUTH_CLIENT_ID,
@@ -38,12 +42,16 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-exports.sendMail = (recipient) => {
+exports.registerMail = (user, otpCode) => {
+  confrimTemplate = confrimTemplate.replace("{confirmStyle}", `<style>${confrimStyle}</style>`);
+  confrimTemplate = confrimTemplate.replace("{username}", user.username);
+  confrimTemplate = confrimTemplate.replaceAll("{otp}", otpCode);
+
   const mailOptions = {
     from: OAUTH_EMAIL,
-    to: recipient,
+    to: user.email,
     subject: 'Authentication email',
-    html: '<div><h1>Hello This is authentication</h1></div>'
+    html: confrimTemplate
   }
 
   transporter.sendMail(mailOptions, (error, info) => {
@@ -54,21 +62,3 @@ exports.sendMail = (recipient) => {
     console.log(`Message sent: ${info.messageId}`);
   })
 }
-
-// module.exports = transporter;
-
-// create mail options
-// const mailOptions = {
-//   from: OAUTH_EMAIL,
-//   to: 'chakrit.artamoz@gmail.com',
-//   subject: 'Hello ✔',
-//   text: 'Hello world?',
-// };
-
-// send mail
-// transporter.sendMail(mailOptions, (error, info) => {
-//   if (error) {
-//       return console.log(error);
-//   }
-//   console.log('Message sent: %s', info.messageId);
-// });

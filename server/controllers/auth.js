@@ -1,11 +1,10 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const randomString = require('randomized-string');
-// const transporter = require('../functions/oauth2');
 
 const User = require('../models/user');
 const OTP = require('../models/otp');
-const { sendMail } = require('../functions/oauth2');
+const { registerMail } = require('../functions/oauth2');
 
 exports.register = async (req, res) => {
   try {
@@ -16,9 +15,9 @@ exports.register = async (req, res) => {
       role
     } = req.body;
     let user = await User.findOne({ username: username });
-    if (user) {
-      return res.send('username is already exists');
-    }
+    // if (user) {
+    //   return res.send('username is already exists');
+    // }
 
     const salt = await bcrypt.genSalt(10);
 
@@ -30,12 +29,13 @@ exports.register = async (req, res) => {
     });
 
     user.password = await bcrypt.hash(password, salt);
+    const otpCode = await generateOTP(user.username);
 
     // Send email for authentication
-    sendMail(email);
+    registerMail(user, otpCode);
 
-    user.save();
-    res.send('register succress');
+    // user.save();
+    return res.send('register succress');
   } catch (err) {
     console.log(err);
     res.send('server error').status(500)
@@ -77,33 +77,18 @@ exports.signin = async (req, res) => {
 
 exports.forget = async (req, res) => {
   try {
-    const expriry = new Date();
-    expriry.setMinutes(expriry.getMinutes() + 5);
-
-    let otpCode = randomString.generate({ 
-      charset: "Number",
-      length: 4 
-    });
-
     const { username } = req.body;
     const user = await User.findOne({ username: username });
     if (!user) {
       return res.send('username is invalid');
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const otp = await bcrypt.hash(otpCode, salt);
-
-    await OTP.findOneAndUpdate(
-      { username: username },
-      { username: username, otp: otp, expriry: expriry},
-      { new: true, upsert: true}
-    )
+    await generateOTP(username);
 
     return res.send('send OTP to your email');
   } catch (err) {
     console.log(err);
-    res.send('server error').status(500);
+    return res.send('server error').status(500);
   }
 }
 
@@ -142,11 +127,11 @@ exports.reset = async (req, res) => {
       { password: newPassword},
       { new: true }
     );
-    res.send('Reset password successfully');
 
+    res.send('Reset password is successfully');
   } catch (err) {
     console.log(err);
-    res.send('server error').status(500);
+    return res.send('server error').status(500);
   }
 }
 
@@ -160,4 +145,25 @@ exports.remove = async (req, res) => {
     console.log(err);
     res.send('server error').status(500);
   }
+}
+
+async function generateOTP(username) {
+  const expiry = new Date();
+  expiry.setMinutes(expiry.getMinutes() + 5);
+
+  let otpCode = randomString.generate({
+    range: "0123456789",
+    length: 4,
+  });
+
+  const salt = await bcrypt.genSalt(10);
+  const otp = await bcrypt.hash(otpCode, salt);
+
+  await OTP.findOneAndUpdate(
+    { username: username },
+    { username: username, otp: otp, expiry: expiry},
+    { new: true, upsert: true}
+  )
+
+  return otpCode;
 }

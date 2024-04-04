@@ -4,6 +4,7 @@ const nodemailer = require('nodemailer');
 const { google } = require('googleapis');
 const OAuth2 = google.auth.OAuth2;
 const { readFileSync } = require('fs');
+const path = require('path');
 
 // init dotenv
 dotenv.config();
@@ -14,8 +15,13 @@ const OAUTH_CLIENT_ID = process.env.OAUTH_CLIENT_ID;
 const OAUTH_CLIENT_SECRET = process.env.OAUTH_CLIENT_SECRET;
 const OAUTH_REFRESH_TOKEN = process.env.OAUTH_REFRESH_TOKEN;
 
-let confrimTemplate = readFileSync('./emails/confirm.html', "utf8");
-let confrimStyle = readFileSync('./emails/confirm.css', 'utf8');
+// get template and style
+let template = readFileSync('./emails/template.html', "utf8");
+const style = readFileSync('./emails/index.css', 'utf8');
+const paperplane = path.join(__dirname, '../asset/paperplane.png');
+
+// add style into template
+template = template.replace('{style}', `<style>${style}</style>`)
 
 const oauth2Client = new OAuth2(
   OAUTH_CLIENT_ID,
@@ -42,23 +48,30 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-exports.registerMail = (user, otpCode) => {
-  confrimTemplate = confrimTemplate.replace("{confirmStyle}", `<style>${confrimStyle}</style>`);
-  confrimTemplate = confrimTemplate.replace("{username}", user.username);
-  confrimTemplate = confrimTemplate.replaceAll("{otp}", otpCode);
+const mailOptions = {
+  from: OAUTH_EMAIL,
+  subject: 'Authentication email',
+  html: template,
+  attachments: [{
+    filename: 'paperplane.png',
+    path: paperplane,
+    cid: 'paperplane'
+  }]
+}
 
-  const mailOptions = {
-    from: OAUTH_EMAIL,
-    to: user.email,
-    subject: 'Authentication email',
-    html: confrimTemplate
-  }
+const sendMail = (user, action, otpCode) => {
+  mailOptions.html = mailOptions.html.replace("{username}", user.username);
+  mailOptions.html = mailOptions.html.replace('{action}', action)
+  mailOptions.html = mailOptions.html.replace("{otp}", otpCode);
+  mailOptions.to = user.email;
 
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      return console.log(error);
+  transporter.sendMail(mailOptions, (err, info) => {
+    if (err) {
+      return console.log(err);
     }
 
     console.log(`Message sent: ${info.messageId}`);
   })
 }
+
+module.exports = sendMail;

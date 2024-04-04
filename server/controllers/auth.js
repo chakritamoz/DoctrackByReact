@@ -4,7 +4,7 @@ const randomString = require('randomized-string');
 
 const User = require('../models/user');
 const OTP = require('../models/otp');
-const { registerMail } = require('../functions/oauth2');
+const { registerMail } = require('./oauth2');
 
 exports.register = async (req, res) => {
   try {
@@ -15,9 +15,9 @@ exports.register = async (req, res) => {
       role
     } = req.body;
     let user = await User.findOne({ username: username });
-    // if (user) {
-    //   return res.send('username is already exists');
-    // }
+    if (user) {
+      return res.send('username is already exists');
+    }
 
     const salt = await bcrypt.genSalt(10);
 
@@ -34,7 +34,7 @@ exports.register = async (req, res) => {
     // Send email for authentication
     registerMail(user, otpCode);
 
-    // user.save();
+    user.save();
     return res.send('register succress');
   } catch (err) {
     console.log(err);

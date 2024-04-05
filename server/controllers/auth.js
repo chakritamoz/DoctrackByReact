@@ -16,7 +16,12 @@ exports.register = async (req, res) => {
     } = req.body;
     let user = await User.findOne({ username: username });
     if (user) {
-      return res.send('username is already exists');
+      return res.send('username is already register');
+    }
+
+    const isMail = await User.findOne({ email: email });
+    if (isMail) {
+      return res.send('email is already register');
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -54,6 +59,19 @@ exports.signin = async (req, res) => {
       return res.send('username is incorrect');
     }
 
+    // email approve account
+    // if (!user.auth.email) {
+    //   const otpCode = await generateOTP(user.username);
+    //   registerMail(user, otpCode);
+
+    //   return res.send('please authentication on your email');
+    // }
+
+    // administrator approve account
+    // if (!user.auth.admin) {
+    //   return res.send('please waiting admin approve');
+    // }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.send('password is incorrect');
@@ -65,7 +83,7 @@ exports.signin = async (req, res) => {
       }
     };
 
-    jwt.sign(payload, 'jwtsecret', (err, token) => {
+    jwt.sign(payload, 'jwtsecret', {expiresIn: '1h'}, (err, token) => {
       if (err) throw err;
       res.json({ token, payload });
     })
@@ -132,6 +150,15 @@ exports.reset = async (req, res) => {
   } catch (err) {
     console.log(err);
     return res.send('server error').status(500);
+  }
+}
+
+exports.confirm = async (req, res) => {
+  try {
+    
+  } catch (err) {
+    console.log(err);
+    res.send('server error').status(500);
   }
 }
 

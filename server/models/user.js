@@ -8,14 +8,16 @@ const userSchema = mongoose.Schema({
     type: String,
     default: "user"
   },
-  emailAuth: {
-    type: Boolean,
-    default: false,
-  },
-  adminAuth: {
-    type: Boolean,
-    default: false,
-  },
+  auth: {
+    email: {
+      type: Boolean,
+      default: false,
+    },
+    admin: {
+      type: Boolean,
+      default: false,
+    }
+  }
 }, {timestamps: true});
 
 module.exports = mongoose.model('user', userSchema);

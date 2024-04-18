@@ -39,7 +39,13 @@ exports.register = async (req, res) => {
     // Send email for authentication
     registerMail(user, otpCode);
 
-    user.save();
+    await user.save();
+
+    jwt.sign(payload, 'jwtsecret', {expiresIn: '5m'}, (err, token) => {
+      if (err) throw err;
+      res.json({ token, payload });
+    })
+
     return res.send('register succress');
   } catch (err) {
     console.log(err);
@@ -59,34 +65,40 @@ exports.signin = async (req, res) => {
       return res.send('username is incorrect');
     }
 
-    // email approve account
-    // if (!user.auth.email) {
-    //   const otpCode = await generateOTP(user.username);
-    //   registerMail(user, otpCode);
-
-    //   return res.send('please authentication on your email');
-    // }
-
-    // administrator approve account
-    // if (!user.auth.admin) {
-    //   return res.send('please waiting admin approve');
-    // }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.send('password is incorrect');
-    }
-
     const payload = {
       user: {
         username: username
       }
     };
 
+    // email approve account
+    if (!user.auth.email) {
+      const otpCode = await generateOTP(user.username);
+      // registerMail(user, otpCode);
+
+      jwt.sign(payload, 'jwtsecret', {expiresIn: '5m'}, (err, token) => {
+        if (err) throw err;
+        res.json({ token, payload });
+      })
+
+      return res.send('please authentication on your email');
+    }
+
+    // administrator approve account
+    if (!user.auth.admin) {
+      return res.send('please waiting admin approve or contract admin');
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.send('password is incorrect');
+    }
+
     jwt.sign(payload, 'jwtsecret', {expiresIn: '1h'}, (err, token) => {
       if (err) throw err;
       res.json({ token, payload });
-    })
+    });
+
   } catch (err) {
     console.log(err);
     res.send('server error').status(500);

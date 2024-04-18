@@ -2,7 +2,10 @@ const mongoose = require('mongoose');
 
 const docSchema = new mongoose.Schema({
   _id: String,
-  receiveDate: Date,
+  receiveDate: {
+    type: Date,
+    default: Date.now()
+  },
   type: String,
   title: String,
   locate: String,

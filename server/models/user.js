@@ -7,6 +7,7 @@ const userSchema = mongoose.Schema({
   role: {
     type: mongoose.Schema.ObjectId,
     ref: "role",
+    required: true,
   }
 }, {timestamps: true});
 

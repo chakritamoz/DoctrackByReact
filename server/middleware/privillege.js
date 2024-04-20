@@ -14,9 +14,14 @@ exports.privilege = (action) => {
         .populate({
           path: 'role',
           populate: { path: 'privilege' }
-        })
+        });
+
+      const isPrivilege = user.role.privilege.find((priv => priv === action));
+
+      if (!isPrivilege) {
+        return res.status(403).send('Forbidden');
+      }
       
-      console.log(user);
       next();
     } catch (err) {
       console.log(err);

@@ -1,10 +1,17 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const randomString = require('randomized-string');
+const dotenv = require('dotenv');
 
 const User = require('../models/user');
+const Role = require('../models/role');
 const OTP = require('../models/otp');
-const { registerMail } = require('./oauth2');
+
+const sendMail = require('../config/oauth2');
+
+dotenv.config();
+const MAIL_REGISTER = process.env.MAIL_REGISTER;
+const MAIL_FORGET = process.env.MAIL_FORGET;
 
 exports.register = async (req, res) => {
   try {
@@ -12,8 +19,8 @@ exports.register = async (req, res) => {
       username, 
       password,
       email,
-      role
     } = req.body;
+
     let user = await User.findOne({ username: username });
     if (user) {
       return res.send('username is already register');
@@ -25,27 +32,26 @@ exports.register = async (req, res) => {
     }
 
     const salt = await bcrypt.genSalt(10);
-
+    
     user = new User({
       username,
       password,
       email,
       role
     });
-
+    
     user.password = await bcrypt.hash(password, salt);
+
+    // set default role as user role
+    const role = await Role.findOne({ name: 'user' });
+    user.role = role._id;
+
     const otpCode = await generateOTP(user.username);
 
     // Send email for authentication
-    registerMail(user, otpCode);
+    sendMail(user, MAIL_REGISTER, otpCode);
 
     await user.save();
-
-    jwt.sign(payload, 'jwtsecret', {expiresIn: '5m'}, (err, token) => {
-      if (err) throw err;
-      res.json({ token, payload });
-    })
-
     return res.send('register succress');
   } catch (err) {
     console.log(err);
@@ -70,24 +76,6 @@ exports.signin = async (req, res) => {
         username: username
       }
     };
-
-    // email approve account
-    if (!user.auth.email) {
-      const otpCode = await generateOTP(user.username);
-      // registerMail(user, otpCode);
-
-      jwt.sign(payload, 'jwtsecret', {expiresIn: '5m'}, (err, token) => {
-        if (err) throw err;
-        res.json({ token, payload });
-      })
-
-      return res.send('please authentication on your email');
-    }
-
-    // administrator approve account
-    if (!user.auth.admin) {
-      return res.send('please waiting admin approve or contract admin');
-    }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {

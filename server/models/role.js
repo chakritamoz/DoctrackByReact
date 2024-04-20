@@ -9,7 +9,8 @@ const roleSchema = new mongoose.Schema({
   privilege: [{
     type: mongoose.Schema.ObjectId,
     ref: 'privilege'
-  }]
+  }],
+  description: String
 });
 
 module.exports = mongoose.model('role', roleSchema)

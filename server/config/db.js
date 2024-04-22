@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const { intialPrivilege, initialRole } = require('./initialData');
 
 dotenv.config();
 
@@ -13,6 +14,9 @@ const connectDB = async () => {
   try {
     await mongoose.connect(uri);
     console.log(`database is connected`);
+
+    // await intialPrivilege();
+    // await initialRole();
   } catch (err) {
     console.log(err);
   }

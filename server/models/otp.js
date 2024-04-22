@@ -7,6 +7,10 @@ const otpSchema = new mongoose.Schema({
   },
   otp: String,
   expiry: Date,
+  limit: {
+    counter: Number,
+    requestDate: Date
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model("otp", otpSchema);

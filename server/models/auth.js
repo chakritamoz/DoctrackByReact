@@ -5,14 +5,24 @@ const authSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'user',
   },
-  auth: {
-    email: {
+  email: {
+    validate: {
       type: Boolean,
       default: false,
     },
-    admin: {
+    dateVerify: {
+      type: Date,
+      default: null
+    }
+  },
+  admin: {
+    validate: {
       type: Boolean,
-      default: false
+      default: false,
+    },
+    dateVerify: {
+      type: Date,
+      default: null
     }
   }
 }, { timestamps: true });

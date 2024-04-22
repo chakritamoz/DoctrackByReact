@@ -6,7 +6,7 @@ const userSchema = mongoose.Schema({
   email: String,
   role: {
     type: mongoose.Schema.ObjectId,
-    ref: "role",
+    ref: 'role',
     required: true,
   }
 }, {timestamps: true});

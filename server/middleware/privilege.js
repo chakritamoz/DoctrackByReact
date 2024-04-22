@@ -1,6 +1,4 @@
 const User = require('../models/user');
-const Role = require('../models/role');
-const Privilege = require('../models/privilege');
 
 exports.privilege = (action) => {
   return async (req, res, next) => {

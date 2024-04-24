@@ -4,9 +4,10 @@ const Role = require('../models/role');
 exports.intialPrivilege = async () => {
   try {
     // Initial privilege data
-    const privileges = [
+    const privsInitial = [
       { name: 'privilege-management', description: 'Features to privilege management' },
       { name: 'role-management', description: 'Features to role management' },
+      { name: 'account-management', description: 'Features to account management'},
       { name: 'document-management', description: 'Features to document management' },
       { name: 'genre-management', description: 'Features to genre management' },
       { name: 'job-management', description: 'Features to job management' },
@@ -14,8 +15,15 @@ exports.intialPrivilege = async () => {
       { name: 'map-management', description: 'Features to map management'},
     ];
 
-    await Privilege.create(privileges);
-    console.log('Initial and saved privilege');
+    privsInitial.forEach(async (privInit) => {
+      // Check if privilege already exists
+      const privilege = await Privilege.findOne({ name: privInit.name});
+      if (privilege) return;
+
+      // Add new privilege
+      await Privilege.create(privInit);
+    });
+    console.log('Initial privilege successful.');
   } catch (err) {
     console.log(err);
   }
@@ -28,7 +36,7 @@ exports.initialRole = async () => {
     const privileges = await Privilege.find({});
 
     // Initial role data
-    const role = [
+    const rolesInitial = [
       { 
         name: 'owns', 
         description: 'Full access to all features',
@@ -39,7 +47,7 @@ exports.initialRole = async () => {
         description: 'Access to all features except system feature',
         privilege: privileges
           .filter(priv => 
-            priv.name !== 'role-management' || priv.name !== 'privilege-management'
+            priv.name !== 'role-management' && priv.name !== 'privilege-management'
           ).map(priv => priv._id)
       },
       {
@@ -62,8 +70,15 @@ exports.initialRole = async () => {
       }
     ];
 
-    await Role.create(role);
-    console.log('Initial and saved role');
+    rolesInitial.forEach(async (roleInit) => {
+      // Check if role is already exists
+      const role = await Role.findOne({ name: roleInit.name });
+      if (role) return;
+
+      // Add new role
+      await Role.create(roleInit);
+    })
+    console.log('Initial role successful.');
   } catch (err) {
     console.log(err);
   }

@@ -6,9 +6,11 @@ const {
   reset,
   remove,
   newOTP,
-  verifyOTP
+  verifyOTP,
+  verifyAdmin
 } = require('../controllers/auth');
 const { authToken, authVerify } = require('../middleware/auth');
+const { privilege } = require('../middleware/privilege');
 
 const router = express.Router();
 
@@ -23,6 +25,9 @@ router.post('/verifyOTP', authToken, verifyOTP)
 
 // http://localhost:8080/api/newOTP
 router.post('/newOTP', authToken, newOTP)
+
+// http://localhost:8080/api/verifyAdmin
+router.post('/verifyAdmin', authToken, privilege(''), verifyAdmin)
 
 // http://localhost:8080/api/forget
 router.post('/forget', forget);

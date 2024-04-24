@@ -194,6 +194,11 @@ exports.verifyOTP = async (req, res) => {
     const user = await User.findOne({ username: req.user.username });
     const otp = await OTP.findOne({ user: user._id });
 
+    // check OTP is expired 
+    if (expiry >= date.now()) {
+      return res.send('OTP has expried');
+    }
+
     // compair OTP code
     const isMatch = await bcrypt.compare(otpCode, otp.otp);
     if (!isMatch) {
@@ -221,15 +226,34 @@ exports.newOTP = async (req, res) => {
   try {
     const user = await User.findOne({ username: req.user.username });
     const otp = await OTP.findOne({ user: user._id });
+    const requestDate = otp.limit.requestDate;
 
+    // Check limit OTP request
     if (otp.limit.counter >= 3) {
-      return res.send('ํYou requested too many OTPs. Please try again tomorrow.')
+      const retryDate = new Date(requestDate);
+      retryDate.setDate(retryDate.getDate() + 1);
+
+      if (retryDate >= Date.now()) {
+        return res.send('ํYou requested too many OTPs. Please try again 24 hour later.')
+      }
+
+      otp.limit.counter = 0;
     }
+
 
     const otpCode = await generateOTP(user.username, otp.limit.counter + 1);
     // send email for authentication
     sendMail(user, MAIL_REGISTER, otpCode);
     return res.send('A new OTP has been sent to your email')
+  } catch (err) {
+    console.log(err);
+    res.send('server error').status(500);
+  }
+}
+
+exports.verifyAdmin = async (req, res) => {
+  try {
+    
   } catch (err) {
     console.log(err);
     res.send('server error').status(500);

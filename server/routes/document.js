@@ -6,6 +6,6 @@ const { privilege } = require('../middleware/privilege');
 const router = express.Router();
 
 // http://localhost:8080/api/document/create
-router.post('/document/create', authToken, privilege, createDocument);
+router.post('/document/create', authToken, authVerify, privilege, createDocument);
 
 module.exports = router;

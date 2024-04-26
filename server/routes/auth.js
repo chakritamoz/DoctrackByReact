@@ -21,13 +21,13 @@ router.post('/register', register);
 router.post('/signin', signin);
 
 // http://localhost:8080/api/verifyOTP
-router.post('/verifyOTP', authToken, verifyOTP)
+router.put('/verifyOTP', authToken, verifyOTP)
 
 // http://localhost:8080/api/newOTP
-router.post('/newOTP', authToken, newOTP)
+router.put('/newOTP', authToken, newOTP)
 
-// http://localhost:8080/api/verifyAdmin
-router.post('/verifyAdmin', authToken, privilege(''), verifyAdmin)
+// http://localhost:8080/api/verifyAdmin/id
+router.put('/verifyAdmin/:id', authToken, privilege('account-management'), verifyAdmin)
 
 // http://localhost:8080/api/forget
 router.post('/forget', forget);

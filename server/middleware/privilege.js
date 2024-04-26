@@ -8,13 +8,13 @@ exports.privilege = (action) => {
       }
 
       const user = await User
-        .findOne({ username: req.user })
+        .findOne({ username: req.user.username })
         .populate({
           path: 'role',
           populate: { path: 'privilege' }
         });
 
-      const isPrivilege = user.role.privilege.find((priv => priv === action));
+      const isPrivilege = user.role.privilege.find((priv => priv.name === action));
 
       if (!isPrivilege) {
         return res.status(403).send('Forbidden');

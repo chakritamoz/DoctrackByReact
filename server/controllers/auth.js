@@ -121,7 +121,7 @@ exports.forget = async (req, res) => {
   } catch (err) {
     console.log(err);
     return res.send('server error').status(500);
-  }
+  } 
 }
 
 exports.reset = async (req, res) => {
@@ -166,16 +166,7 @@ exports.reset = async (req, res) => {
     return res.send('server error').status(500);
   }
 }
-
-exports.confirm = async (req, res) => {
-  try {
-    
-  } catch (err) {
-    console.log(err);
-    res.send('server error').status(500);
-  }
-}
-
+                                                                                   
 exports.remove = async (req, res) => {
   try {
     const { username } = req.params;

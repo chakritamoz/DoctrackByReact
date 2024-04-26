@@ -253,7 +253,21 @@ exports.newOTP = async (req, res) => {
 
 exports.verifyAdmin = async (req, res) => {
   try {
-    
+    const id = req.params.id;
+    const auth = await Auth.findOne({ user: id });
+
+    if (auth.admin.validate) {
+      return res.send('user has been verified.')
+    }
+
+    await Auth.updateOne(
+      { admin: {
+        validate: true,
+        dateVerify: Date.now()
+      }}
+    );
+
+    return res.send('admin has successfully verified.');
   } catch (err) {
     console.log(err);
     res.send('server error').status(500);

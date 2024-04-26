@@ -24,11 +24,11 @@ exports.getDocument = async (req, res) => {
 
 exports.createDocument = async (req, res) => {
   try {
-    const { id } = req.body;
-    let document = await Document.findOne({ _id: id });
+    const { docNumber } = req.body;
+    let document = await Document.findOne({ docNumber: docNumber });
 
     if(document) {
-      return res.send(`Document id ${document.id} is already exists.`);
+      return res.send(`Document number ${docNumber} is already exists.`);
     }
     const user = await User.findOne({ "username": req.user.username })
 

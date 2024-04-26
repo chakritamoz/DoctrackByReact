@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const docSchema = new mongoose.Schema({
-  _id: String,
+  docNumber: String,
   receiveDate: {
     type: Date,
     default: Date.now()

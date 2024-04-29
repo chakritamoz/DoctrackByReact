@@ -111,12 +111,12 @@ exports.forget = async (req, res) => {
   } catch (err) {
     console.log(err);
     return res.send('server error').status(500);
-  } 
+  }
 }
 
 exports.reset = async (req, res) => {
   try {
-    const { 
+    const {
       username,
       password,
       confirmPassword,
@@ -159,8 +159,8 @@ exports.reset = async (req, res) => {
                                                                                    
 exports.remove = async (req, res) => {
   try {
-    const { username } = req.params;
-    await User.findOneAndDelete({ username: username });
+    const id = req.params.id;
+    await User.findOneAndDelete({ _id: id });
 
     res.send('Remove user successfully')
   } catch (err) {
@@ -247,8 +247,8 @@ exports.newOTP = async (req, res) => {
       otp.limit.counter = 0;
     }
 
-
     const otpCode = await generateOTP(user.username, otp.limit.counter + 1);
+    
     // send email for authentication
     sendMail(user, MAIL_REGISTER, otpCode);
     return res.send('A new OTP has been sent to your email')

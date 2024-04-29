@@ -56,17 +56,7 @@ exports.register = async (req, res) => {
     const otpCode = await generateOTP(user.username);
     // send email for authentication
     sendMail(user, MAIL_REGISTER, otpCode);
-
-    const payload = {
-      user: {
-        username: username
-      }
-    };
-
-    jwt.sign(payload, 'jwtsecret', {expiresIn: '1h'}, (err, token) => {
-      if (err) throw err;
-      res.json({ token, payload });
-    });
+    return res.send('Send OTP via email');
   } catch (err) {
     console.log(err);
     res.send('server error').status(500)
@@ -126,7 +116,7 @@ exports.forget = async (req, res) => {
 
 exports.reset = async (req, res) => {
   try {
-    const { 
+    const {
       username,
       password,
       confirmPassword,
@@ -166,20 +156,11 @@ exports.reset = async (req, res) => {
     return res.send('server error').status(500);
   }
 }
-
-exports.confirm = async (req, res) => {
-  try {
-    
-  } catch (err) {
-    console.log(err);
-    res.send('server error').status(500);
-  }
-}
-
+                                                                                   
 exports.remove = async (req, res) => {
   try {
-    const { username } = req.params;
-    await User.findOneAndDelete({ username: username });
+    const id = req.params.id;
+    await User.findOneAndDelete({ _id: id });
 
     res.send('Remove user successfully')
   } catch (err) {
@@ -190,19 +171,29 @@ exports.remove = async (req, res) => {
 
 exports.verifyOTP = async (req, res) => {
   try {
-    const { otpCode } = req.body;
-    const user = await User.findOne({ username: req.user.username });
+    const { username, otpCode } = req.body;
+
+    // Find the user by username
+    const user = await User.findOne({ username: username });
+    if (!user) {
+      return res.send('User not found').status(404);
+    }
+
+    // Find the OTP record for the user
     const otp = await OTP.findOne({ user: user._id });
+    if (!otp) {
+      return res.send('OTP not found').status(404);
+    }
 
     // check OTP is expired 
     if (expiry >= date.now()) {
-      return res.send('OTP has expried');
+      return res.send('OTP has expried').status(400);
     }
 
     // compair OTP code
     const isMatch = await bcrypt.compare(otpCode, otp.otp);
     if (!isMatch) {
-      return res.send('OTP is invalid');
+      return res.send('OTP is invalid').status(400);
     }
 
     await Auth.findOneAndUpdate(
@@ -224,24 +215,40 @@ exports.verifyOTP = async (req, res) => {
 
 exports.newOTP = async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.user.username });
-    const otp = await OTP.findOne({ user: user._id });
-    const requestDate = otp.limit.requestDate;
+    const { username } = req.body;
 
+    // Find the user by username
+    const user = await User.findOne({ username: username });
+    if (!user) {
+      return res.send('User not found').status(404);
+    }
+
+    // Find the OTP record for the user
+    const otp = await OTP.findOne({ user: user._id });
+    
     // Check limit OTP request
+    // If limit is equal or morethan 3 times/d
     if (otp.limit.counter >= 3) {
+      
+      // Set retry date by add 1 date
+      const requestDate = otp.limit.requestDate;
       const retryDate = new Date(requestDate);
       retryDate.setDate(retryDate.getDate() + 1);
 
+      // Check retry date is morethan date now
+      // send error message try again after 24 hour later
       if (retryDate >= Date.now()) {
         return res.send('ํYou requested too many OTPs. Please try again 24 hour later.')
+          .staus(400);
       }
 
+      // If request after 24 hour later
+      // reset limit couter as 0
       otp.limit.counter = 0;
     }
 
-
     const otpCode = await generateOTP(user.username, otp.limit.counter + 1);
+    
     // send email for authentication
     sendMail(user, MAIL_REGISTER, otpCode);
     return res.send('A new OTP has been sent to your email')

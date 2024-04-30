@@ -20,10 +20,10 @@ router.post('/register', register);
 router.post('/signin', signin);
 
 // http://localhost:8080/api/verifyOTP
-router.put('/verifyOTP', authToken, verifyOTP)
+router.put('/verifyOTP', verifyOTP)
 
 // http://localhost:8080/api/newOTP
-router.put('/newOTP', authToken, newOTP)
+router.put('/newOTP', newOTP)
 
 // http://localhost:8080/api/verifyAdmin/id
 router.put('/verifyAdmin/:id', authToken, privilege('account-management'), verifyAdmin)

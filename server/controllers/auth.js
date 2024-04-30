@@ -16,6 +16,7 @@ const MAIL_FORGET = process.env.MAIL_FORGET;
 
 exports.register = async (req, res) => {
   try {
+    console.log(req.body);
     const { 
       username, 
       password,
@@ -24,12 +25,12 @@ exports.register = async (req, res) => {
 
     let user = await User.findOne({ username: username });
     if (user) {
-      return res.send('username is already register');
+      return res.status(409).send('username is already register');
     }
 
     const isMail = await User.findOne({ email: email });
     if (isMail) {
-      return res.send('email is already register');
+      return res.status(409).send('email is already register');
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -59,7 +60,7 @@ exports.register = async (req, res) => {
     return res.send('Send OTP via email');
   } catch (err) {
     console.log(err);
-    res.send('server error').status(500)
+    res.status(500).send('server error');
   }
 }
 
@@ -174,7 +175,7 @@ exports.verifyOTP = async (req, res) => {
     }
 
     // check OTP is expired 
-    if (expiry >= date.now()) {
+    if (otp.expiry >= Date.now()) {
       return res.send('OTP has expried').status(400);
     }
 

@@ -4,7 +4,6 @@ const {
   signin, 
   forget, 
   reset,
-  remove,
   newOTP,
   verifyOTP,
   verifyAdmin
@@ -34,8 +33,5 @@ router.post('/forget', forget);
 
 // http://localhost:8080/api/reset
 router.put('/reset', reset);
-
-// http://localhost:8080/api/remove
-router.delete('/remove', remove)
 
 module.exports = router;

@@ -8,6 +8,8 @@ import './index.css';
 import Root from './routes/root';
 import ErrorPage from './routes/error-page';
 import SignIn from './routes/signin';
+import Register from './routes/register';
+import OTP from './routes/otp';
 
 const router = createBrowserRouter([
   {
@@ -23,6 +25,14 @@ const router = createBrowserRouter([
   {
     path: "signin",
     element: <SignIn />
+  },
+  {
+    path: "register",
+    element: <Register />
+  },
+  {
+    path: "otp",
+    element: <OTP />
   }
 ]);
 

@@ -1,7 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { signin } from '../functions/auth';
 
 const SignIn = () => {
   const [inputs, setInputs] = useState({});
+
+  const navigate = useNavigate();
 
   const handleChange = (event) => {
     const name = event.target.name;
@@ -11,7 +15,14 @@ const SignIn = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    alert(inputs);
+    console.log(inputs);
+    signin(inputs)
+      .then((res) => {
+        navigate('/');
+      })
+      .catch((err) => {
+        console.log(err);
+      })
   }
 
   return (
@@ -34,11 +45,14 @@ const SignIn = () => {
             onChange={handleChange}
           />
         </label><br/>
-        <input type='submit'/>
+        <input type='submit' value='Sign In'/>
       </form>
+      <div>
+        <p>You don't have an account yet? <Link to="/register">Register</Link></p>
+      </div>
     </>
 
   )
 }
 
-export default SignIn
+export default SignIn;

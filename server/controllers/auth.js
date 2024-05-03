@@ -73,7 +73,7 @@ exports.signin = async (req, res) => {
     );
 
     if (!user) {
-      return res.send('username is incorrect');
+      return res.status(400).send('username is incorrect');
     }
 
     const payload = {
@@ -84,7 +84,7 @@ exports.signin = async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.send('password is incorrect');
+      return res.status(400).send('password is incorrect');
     }
 
     jwt.sign(payload, 'jwtsecret', {expiresIn: '1h'}, (err, token) => {
@@ -94,7 +94,7 @@ exports.signin = async (req, res) => {
 
   } catch (err) {
     console.log(err);
-    res.send('server error').status(500);
+    res.status(500).send('server error');
   }
 }
 
@@ -111,7 +111,7 @@ exports.forget = async (req, res) => {
     return res.send('send OTP to your email');
   } catch (err) {
     console.log(err);
-    return res.send('server error').status(500);
+    return res.status(500).send('server error');
   }
 }
 
@@ -124,18 +124,25 @@ exports.reset = async (req, res) => {
       otpCode
     } = req.body;
 
-    const otp = await OTP.findOne({ username: username});
+    // Find the user by username
+    const user = await User.findOne({ username: username });
+    if (!user) {
+      return res.status(400).send('User is invalid');
+    }
+
+    // Find the OTP record for the user
+    const otp = await OTP.findOne({ user: user._id });
     if (!otp) {
-      return res.send('Username is invalid');
+      return res.status(400).send('OTP not found');
     }
 
     if (expiry < new Date()) {
-      return res.send('OTP lifetime is expired');
+      return res.status(400).send('OTP lifetime is expired');
     }
 
     const isMatch = await bcrypt.compare(otpCode, otp.otp);
     if (!isMatch) {
-      return res.send('OTP is invalid');
+      return res.status(400).send('OTP is invalid');
     }
 
     if (password !== confirmPassword) {
@@ -154,7 +161,7 @@ exports.reset = async (req, res) => {
     res.send('Reset password is successfully');
   } catch (err) {
     console.log(err);
-    return res.send('server error').status(500);
+    return res.status(500).send('server error');
   }
 }
 
@@ -165,24 +172,24 @@ exports.verifyOTP = async (req, res) => {
     // Find the user by username
     const user = await User.findOne({ username: username });
     if (!user) {
-      return res.send('User not found').status(404);
+      return res.status(400).send('User is invalid');
     }
 
     // Find the OTP record for the user
     const otp = await OTP.findOne({ user: user._id });
     if (!otp) {
-      return res.send('OTP not found').status(404);
+      return res.status(400).send('OTP not found');
     }
 
     // check OTP is expired 
-    if (otp.expiry >= Date.now()) {
-      return res.send('OTP has expried').status(400);
+    if (otp.expiry <= Date.now()) {
+      return res.status(400).send('OTP has expried');
     }
 
     // compair OTP code
     const isMatch = await bcrypt.compare(otpCode, otp.otp);
     if (!isMatch) {
-      return res.send('OTP is invalid').status(400);
+      return res.status(400).send('OTP is invalid');
     }
 
     await Auth.findOneAndUpdate(
@@ -198,7 +205,7 @@ exports.verifyOTP = async (req, res) => {
     return res.send('verify success');
   } catch (err) {
     console.log(err);
-    res.send('server error').status(500);
+    res.status(500).send('server error');
   }
 }
 
@@ -209,7 +216,7 @@ exports.newOTP = async (req, res) => {
     // Find the user by username
     const user = await User.findOne({ username: username });
     if (!user) {
-      return res.send('User not found').status(404);
+      return res.status(404).send('User not found');
     }
 
     // Find the OTP record for the user
@@ -227,8 +234,9 @@ exports.newOTP = async (req, res) => {
       // Check retry date is morethan date now
       // send error message try again after 24 hour later
       if (retryDate >= Date.now()) {
-        return res.send('ํYou requested too many OTPs. Please try again 24 hour later.')
-          .staus(400);
+        return res
+        .staus(400)
+        .send('ํYou requested too many OTPs. Please try again 24 hour later.');
       }
 
       // If request after 24 hour later
@@ -243,7 +251,7 @@ exports.newOTP = async (req, res) => {
     return res.send('A new OTP has been sent to your email')
   } catch (err) {
     console.log(err);
-    res.send('server error').status(500);
+    res.status(500).send('server error');
   }
 }
 
@@ -266,7 +274,7 @@ exports.verifyAdmin = async (req, res) => {
     return res.send('admin has successfully verified.');
   } catch (err) {
     console.log(err);
-    res.send('server error').status(500);
+    res.status(500).send('server error');
   }
 }
 

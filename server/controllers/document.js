@@ -7,7 +7,7 @@ exports.getDocuments = async (req, res) => {
     return res.send(documents);
   } catch (err) {
     console.log(err);
-    return res.send('server error').status(500);
+    return res.status(500).send('server error');
   }
 }
 
@@ -18,7 +18,7 @@ exports.getDocument = async (req, res) => {
     return res.send(document);
   } catch (err) {
     console.log(err);
-    return res.send('server error').status(500);
+    return res.status(500).send('server error');
   }
 }
 
@@ -39,6 +39,6 @@ exports.createDocument = async (req, res) => {
     return res.send('document create success');
   } catch (err) {
     console.log(err);
-    return res.send('server error').status(500);
+    return res.status(500).send('server error');
   }
 }

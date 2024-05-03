@@ -7,7 +7,7 @@ exports.accounts = async (req, res) => {
     res.send(users);
   } catch (err) {
     console.log(err);
-    res.send('server error').status(500);
+    res.status(500).send('server error');
   }
 }
 
@@ -19,6 +19,6 @@ exports.remove = async (req, res) => {
     res.send('Remove user successfully')
   } catch (err) {
     console.log(err);
-    res.send('server error').status(500);
+    res.status(500).send('server error');
   }
 }

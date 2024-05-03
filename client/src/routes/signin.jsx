@@ -46,6 +46,7 @@ const SignIn = () => {
           />
         </label><br/>
         <input type='submit' value='Sign In'/>
+        <button><Link to="/">Cancel</Link></button>
       </form>
       <div>
         <p>You don't have an account yet? <Link to="/register">Register</Link></p>

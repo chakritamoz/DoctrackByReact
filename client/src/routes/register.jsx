@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { register } from '../functions/auth';
 
 const Register = () => {
@@ -78,8 +78,8 @@ const Register = () => {
           />
         </label><br/>
         <input type='submit' value='Register'/>
-        <button type='button' onClick={() => navigate(-1)}>
-          Cancel
+        <button>
+          <Link to="/signin">Cancel</Link>
         </button>
       </form>
     </>

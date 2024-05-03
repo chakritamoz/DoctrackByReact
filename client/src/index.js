@@ -10,6 +10,7 @@ import ErrorPage from './routes/error-page';
 import SignIn from './routes/signin';
 import Register from './routes/register';
 import OTP from './routes/otp';
+import Accounts from './routes/accounts';
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,12 @@ const router = createBrowserRouter([
     children: [
       {
         errorElement: <ErrorPage />,
+        children: [
+          {
+            path: "accounts",
+            element: <Accounts />
+          }
+        ]
       },
     ],
   },

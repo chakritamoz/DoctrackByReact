@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signin } from '../functions/auth';
+import cookies from 'js-cookie';
 
 const SignIn = () => {
   const [inputs, setInputs] = useState({});
@@ -15,9 +16,9 @@ const SignIn = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log(inputs);
     signin(inputs)
       .then((res) => {
+        cookies.set('jwttoken', res.data.token, { expires: 1 });
         navigate('/');
       })
       .catch((err) => {

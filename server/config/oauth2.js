@@ -35,7 +35,7 @@ oauth2Client.setCredentials({
 
 const accessToken = oauth2Client.getAccessToken();
 
-// create reusable transporter object using the default SMTP transport
+// // create reusable transporter object using the default SMTP transport
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {

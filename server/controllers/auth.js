@@ -89,7 +89,7 @@ exports.signin = async (req, res) => {
 
     jwt.sign(payload, 'jwtsecret', {expiresIn: '1h'}, (err, token) => {
       if (err) throw err;
-      res.json({ token, payload });
+      res.json({ token });
     });
 
   } catch (err) {

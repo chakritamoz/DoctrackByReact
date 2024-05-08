@@ -26,7 +26,7 @@ router.put('/verifyOTP', verifyOTP)
 router.put('/newOTP', newOTP)
 
 // http://localhost:8080/api/verifyAdmin/id
-router.put('/verifyAdmin/:id', authToken, privilege('account-management'), verifyAdmin)
+router.put('/verifyAdmin/:id', authToken, authVerify, privilege('account-management'), verifyAdmin)
 
 // http://localhost:8080/api/forget
 router.post('/forget', forget);

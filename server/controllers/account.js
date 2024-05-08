@@ -3,7 +3,6 @@ const User = require('../models/user');
 exports.accounts = async (req, res) => {
   try {
     const users = await User.find({});
-    console.log(users);
     res.send(users);
   } catch (err) {
     console.log(err);

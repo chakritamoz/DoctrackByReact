@@ -6,9 +6,9 @@ const { privilege } = require('../middleware/privilege');
 const router = express.Router();
 
 // http://localhost:8080/api/account
-router.get('/account', authVerify, privilege, accounts);
+router.get('/account', authToken, authVerify, privilege('account-management'), accounts);
 
 // http://localhost:8080/api/remove/id
-router.delete('/account/:id', remove);
+router.delete('/account/:id', privilege('account-management'), remove);
 
 module.exports = router;

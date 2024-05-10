@@ -264,7 +264,7 @@ exports.verifyAdmin = async (req, res) => {
       return res.send('user has been verified.')
     }
 
-    await Auth.updateOne(
+    await auth.updateOne(
       { admin: {
         validate: true,
         dateVerify: Date.now()

@@ -18,7 +18,7 @@ const SignIn = () => {
     event.preventDefault();
     signin(inputs)
       .then((res) => {
-        cookies.set('jwttoken', res.data.token, { expires: 1 });
+        console.log(res);
         navigate('/');
       })
       .catch((err) => {

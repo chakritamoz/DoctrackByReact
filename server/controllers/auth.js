@@ -13,6 +13,7 @@ const sendMail = require('../config/oauth2');
 dotenv.config();
 const MAIL_REGISTER = process.env.MAIL_REGISTER;
 const MAIL_FORGET = process.env.MAIL_FORGET;
+const SECRET_KEY = process.env.SECRET_KEY;
 
 exports.register = async (req, res) => {
   try {
@@ -87,9 +88,15 @@ exports.signin = async (req, res) => {
       return res.status(400).send('password is incorrect');
     }
 
-    jwt.sign(payload, 'jwtsecret', {expiresIn: '1h'}, (err, token) => {
+    jwt.sign(payload, SECRET_KEY, {expiresIn: '1h'}, (err, token) => {
       if (err) throw err;
-      res.json({ token });
+      res.cookie("token", token, {
+        httpOnly: true, // Cookie will not be exposed to client side code
+        sameSite: "none", // If client and server origins are different
+        secure: true, // use with HTTPS only
+        maxAge: 1000 * 60 * 60 // expire after 1 hour
+      });
+      res.json({ sucess: true });
     });
 
   } catch (err) {

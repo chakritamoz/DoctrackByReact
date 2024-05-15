@@ -1,4 +1,6 @@
 const User = require('../models/user');
+const OTP = require('../models/otp');
+const Auth = require('../models/auth');
 
 exports.accounts = async (req, res) => {
   try {
@@ -12,8 +14,16 @@ exports.accounts = async (req, res) => {
 
 exports.remove = async (req, res) => {
   try {
-    const id = req.params.id;
-    await User.findOneAndDelete({ _id: id });
+    const userId = req.params.id;
+
+    // Delete the user document
+    await User.findOneAndDelete({ _id: userId });
+
+    // Delete associated otp document
+    await OTP.deleteMany({ user: userId });
+
+    // Delete associated auth document
+    await Auth.deleteMany({ user: userId });
 
     res.send('Remove user successfully')
   } catch (err) {

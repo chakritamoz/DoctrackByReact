@@ -8,12 +8,14 @@ const Role = require('../models/role');
 const OTP = require('../models/otp');
 const Auth = require('../models/auth');
 
-const sendMail = require('../config/oauth2');
+const sendMail = require('../utils/oauth2');
+const generateTokensAndSetCookies = require('../utils/tokenUtils');
 
 dotenv.config();
 const MAIL_REGISTER = process.env.MAIL_REGISTER;
 const MAIL_FORGET = process.env.MAIL_FORGET;
-const SECRET_KEY = process.env.SECRET_KEY;
+const REFRESH_KEY = process.env.REFRESH_KEY;
+const ACCESS_KEY = process.env.ACCESS_KEY;
 
 exports.register = async (req, res) => {
   try {
@@ -88,17 +90,9 @@ exports.signin = async (req, res) => {
       return res.status(400).send('password is incorrect');
     }
 
-    jwt.sign(payload, SECRET_KEY, {expiresIn: '1h'}, (err, token) => {
-      if (err) throw err;
-      res.cookie("token", token, {
-        httpOnly: true, // Cookie will not be exposed to client side code
-        sameSite: "none", // If client and server origins are different
-        secure: true, // use with HTTPS only
-        maxAge: 1000 * 60 * 60 // expire after 1 hour
-      });
-      res.json({ sucess: true });
-    });
-
+    await generateTokensAndSetCookies(res, payload.user);
+    
+    res.json({ sucess: true });
   } catch (err) {
     console.log(err);
     res.status(500).send('server error');

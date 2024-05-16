@@ -2,25 +2,53 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const Auth = require('../models/auth');
 const dotenv = require('dotenv');
+const generateTokensAndSetCookies = require('../utils/tokenUtils');
 
 dotenv.config();
-const SECRET_KEY = process.env.SECRET_KEY;
+const REFRESH_KEY = process.env.REFRESH_KEY;
+const ACCESS_KEY = process.env.ACCESS_KEY;
 
 exports.authToken = async (req, res, next) => {
   try {
-    const token = req.cookies.token;
-    
-    if (!token) {
-      return res.sendStatus(401);
+    const {refresh_token, access_token} = req.cookies;
+
+    if (!access_token) {
+      if (!refresh_token) {
+        return res.sendStatus(401);
+      }
+
+      const decodedRefreshToken = await jwt.verify(refresh_token, REFRESH_KEY);
+      req.user = decodedRefreshToken.user;
+      // Generate both token access and refresh
+      // set both cookies acress and refresh
+      await generateTokensAndSetCookies(res, decodedRefreshToken.user)
+      next();
     }
 
-    jwt.verify(token, SECRET_KEY, (err, decoded) => {
-      if (err) return res.status(401).send('Unauthorized');
-      req.user = decoded.user;
-    });
+    try {
+      const decodedAcessToken = await jwt.verify(access_token, ACCESS_KEY);
+      req.user = decodedAcessToken.user;
+      
+      next();
+    } catch (err) {
+      if (err.name === 'TokenExpiredError') {
+        if (!refresh_token) {
+          return res.sendStatus(401);
+        }
 
-    next();
+        const decodedRefreshToken = await jwt.verify(refresh_token, REFRESH_KEY);
+        req.user = decodedRefreshToken.user;
+
+        // Generate both token access and refresh
+        // set both cookies acress and refresh
+        await generateTokensAndSetCookies(res, decodedRefreshToken.user);
+        next();
+      }
+    }
   } catch (err) {
+    if (err.name === 'TokenExpiredError' || err.name === 'JsonWebTokenError') {
+      return res.sendStatus(401)
+    }
     console.log(err);
     return res.status(500).send('invalid token');
   }

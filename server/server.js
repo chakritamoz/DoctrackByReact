@@ -3,7 +3,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
-const connectDB = require('./config/db');
+const connectDB = require('./utils/db');
 const { readdirSync } = require('fs');
 const cookieParser = require('cookie-parser');
 

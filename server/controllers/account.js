@@ -20,10 +20,10 @@ exports.remove = async (req, res) => {
     await User.findOneAndDelete({ _id: userId });
 
     // Delete associated otp document
-    await OTP.deleteMany({ user: userId });
+    await OTP.findOneAndDelete({ user: userId });
 
     // Delete associated auth document
-    await Auth.deleteMany({ user: userId });
+    await Auth.findOneAndDelete({ user: userId });
 
     res.send('Remove user successfully')
   } catch (err) {

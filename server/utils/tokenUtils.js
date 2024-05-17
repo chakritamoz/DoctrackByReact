@@ -13,7 +13,7 @@ const generateTokensAndSetCookies = async (res, decodeToken) => {
   }
 
   // Generate a new access token
-  const newAccessToken = await jwt.sign(payload, ACCESS_KEY, {expiresIn: 10});
+  const newAccessToken = await jwt.sign(payload, ACCESS_KEY, {expiresIn: "30m"});
   res.cookie('access_token', newAccessToken, {
     httpOnly: true, // Cookie will not be exposed to client side code
     sameSite: "none", // If client and server origins are different
@@ -22,7 +22,7 @@ const generateTokensAndSetCookies = async (res, decodeToken) => {
   });
 
   // Generate a new refresh token
-  const newRefreshToken = await jwt.sign(payload, REFRESH_KEY, {expiresIn: 30});
+  const newRefreshToken = await jwt.sign(payload, REFRESH_KEY, {expiresIn: "1h"});
   res.cookie('refresh_token', newRefreshToken, {
     httpOnly: true,
     sameSite: "none",

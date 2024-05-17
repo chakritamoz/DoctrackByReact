@@ -28,15 +28,41 @@ exports.createDocument = async (req, res) => {
     let document = await Document.findOne({ docNumber: docNumber });
 
     if(document) {
-      return res.send(`Document number ${docNumber} is already exists.`);
+      return res.status(400).send(`Document number ${docNumber} is already exists.`);
     }
     const user = await User.findOne({ "username": req.user.username })
 
-    document = new Document (req.body);
+    document = new Document(req.body);
     document.createBy = user._id;
     await document.save();
 
-    return res.send('document create success');
+    return res.send('create document success');
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send('server error');
+  }
+}
+
+exports.updateDocument = async (req, res) => {
+  try {
+    const id = req.params.id;
+    await Document.findOneAndUpdate(
+      { _id: id },
+      req.body,
+      { new: true }
+    );
+    return res.send('update document success');
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('server error');
+  }
+}
+
+exports.removeDocument = async (req, res) => {
+  try {
+    const id = req.params.id;
+    await Document.findOneAndDelete(id);
+    return res.send('remove document success')
   } catch (err) {
     console.log(err);
     return res.status(500).send('server error');

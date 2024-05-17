@@ -6,7 +6,8 @@ const {
   reset,
   newOTP,
   verifyOTP,
-  verifyAdmin
+  verifyAdmin,
+  signout
 } = require('../controllers/auth');
 const { authToken, authVerify } = require('../middleware/auth');
 const { privilege } = require('../middleware/privilege');
@@ -18,6 +19,9 @@ router.post('/register', register);
 
 // http://localhost:8080/api/signin
 router.post('/signin', signin);
+
+// http://localhost:8080/api/signout
+router.post('/signout', signout);
 
 // http://localhost:8080/api/verifyOTP
 router.put('/verifyOTP', verifyOTP)

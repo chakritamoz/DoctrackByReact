@@ -99,6 +99,29 @@ exports.signin = async (req, res) => {
   }
 }
 
+exports.signout = async (req, res) => {
+  try {
+    // Clear the access token
+    res.clearCookie('access_token', {
+      httpOnly: true,
+      sameSite: "none",
+      secure: true
+    });
+
+    // Clear the refresh token 
+    res.clearCookie('refresh_token', {
+      httpOnly: true,
+      sameSite: "none",
+      secure: true
+    });
+
+    res.send('Signed out');
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('server error');
+  }
+}
+
 exports.forget = async (req, res) => {
   try {
     const { username } = req.body;
